@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Santiel · Astronomía con IA</title>
+  <meta name="description" content="Santiel: una pequeña red neuronal que sabe de astronomía. Conversa, juega y entrénala.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <header class="top">
+    <a class="brand" href="#" aria-label="Santiel, inicio"><span class="brand-star">✦</span> Santiel</a>
+    <nav class="nav" aria-label="Secciones">
+      <button class="nav-btn is-active" data-view="chat">Conversar</button>
+      <button class="nav-btn" data-view="games">Juegos</button>
+      <button class="nav-btn" data-view="train">Entrenar</button>
+      <button class="nav-btn" data-view="about">Cómo funciona</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============ CONVERSAR ============ -->
+    <section class="view is-active" id="view-chat">
+      <div class="hero">
+        <h1>Pregúntale al <em>cielo</em></h1>
+        <p>Santiel es una red neuronal pequeña que solo sabe de astronomía.</p>
+      </div>
+      <div class="panel chat">
+        <div class="chat-log" id="chat-log" role="log" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <form class="chat-form" id="chat-form" autocomplete="off">
+          <input id="chat-input" type="text" maxlength="300" placeholder="Pregunta algo: ¿qué es un agujero negro?" aria-label="Tu pregunta">
+          <button class="btn" type="submit">Enviar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ JUEGOS ============ -->
+    <section class="view" id="view-games">
+      <div class="hero compact">
+        <h1>Juegos <em>interactivos</em></h1>
+        <p>Aprende astronomía jugando.</p>
+      </div>
+      <div class="subtabs" role="tablist" aria-label="Juegos">
+        <button class="subtab is-active" data-game="constellations">✦ Constelaciones</button>
+        <button class="subtab" data-game="quiz">❔ Cuestionario</button>
+        <button class="subtab" data-game="meteors">☄ Cazameteoros</button>
+        <button class="subtab" data-game="planets">🪐 Ordena los planetas</button>
+      </div>
+
+      <!-- Constelaciones -->
+      <div class="panel game is-active" id="game-constellations">
+        <div class="hud">
+          <div><span class="hud-label">Constelación</span> <strong id="c-name">—</strong></div>
+          <div><span class="hud-label">Errores</span> <strong id="c-errors">0</strong></div>
+          <div><span class="hud-label">Tiempo</span> <strong id="c-time">0 s</strong></div>
+          <button class="btn ghost small" id="c-hint" type="button">Pista</button>
+        </div>
+        <p class="clue" id="c-clue"></p>
+        <canvas id="c-canvas" width="800" height="480" aria-label="Conecta las estrellas haciendo clic en pares"></canvas>
+        <div class="game-msg" id="c-msg" role="status"></div>
+        <button class="btn" id="c-next" type="button" hidden>Siguiente</button>
+      </div>
+
+      <!-- Cuestionario -->
+      <div class="panel game" id="game-quiz">
+        <div class="hud">
+          <div><span class="hud-label">Pregunta</span> <strong id="q-n">1/8</strong></div>
+          <div><span class="hud-label">Aciertos</span> <strong id="q-score">0</strong></div>
+        </div>
+        <h2 class="q-text" id="q-text"></h2>
+        <div class="q-options" id="q-options"></div>
+        <div class="game-msg" id="q-msg" role="status"></div>
+        <button class="btn" id="q-next" type="button" hidden>Siguiente</button>
+      </div>
+
+      <!-- Cazameteoros -->
+      <div class="panel game" id="game-meteors">
+        <div class="hud">
+          <div><span class="hud-label">Puntos</span> <strong id="m-score">0</strong></div>
+          <div><span class="hud-label">Combo</span> <strong id="m-combo">x1</strong></div>
+          <div><span class="hud-label">Tiempo</span> <strong id="m-time">30</strong></div>
+          <div><span class="hud-label">Récord</span> <strong id="m-best">0</strong></div>
+        </div>
+        <p class="clue">Toca los meteoros ☄ para atraparlos. ¡Cuidado con los satélites: restan puntos!</p>
+        <div class="canvas-wrap">
+          <canvas id="m-canvas" width="800" height="480" aria-label="Zona de juego: toca los meteoros"></canvas>
+          <div class="overlay" id="m-overlay">
+            <h2 id="m-title">Cazameteoros</h2>
+            <p id="m-sub">Tienes 30 segundos.</p>
+            <button class="btn" id="m-start" type="button">Jugar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ordena los planetas -->
+      <div class="panel game" id="game-planets">
+        <div class="hud">
+          <div><span class="hud-label">Progreso</span> <strong id="p-progress">0/8</strong></div>
+          <div><span class="hud-label">Errores</span> <strong id="p-errors">0</strong></div>
+          <div><span class="hud-label">Tiempo</span> <strong id="p-time">0 s</strong></div>
+        </div>
+        <p class="clue">Toca los planetas en orden, del más cercano al más lejano del Sol.</p>
+        <div class="sun-row" aria-hidden="true"><span class="sun"></span><span class="sun-line"></span></div>
+        <div class="planet-grid" id="p-grid"></div>
+        <div class="game-msg" id="p-msg" role="status"></div>
+        <button class="btn" id="p-restart" type="button" hidden>Jugar otra vez</button>
+      </div>
+    </section>
+
+    <!-- ============ ENTRENAR ============ -->
+    <section class="view" id="view-train">
+      <div class="hero compact">
+        <h1>Entrena a <em>Santiel</em></h1>
+        <p>Ajusta la red, mira cómo aprende y enséñale cosas nuevas.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h2 class="h2">Entrenamiento</h2>
+          <div class="stats" id="stats"></div>
+          <form id="train-form" class="form-grid">
+            <label>Épocas
+              <input type="number" id="t-epochs" value="250" min="20" max="1000" step="10">
+            </label>
+            <label>Neuronas ocultas
+              <input type="number" id="t-hidden" value="64" min="8" max="256" step="8">
+            </label>
+            <label>Tasa de aprendizaje
+              <input type="number" id="t-lr" value="0.01" min="0.001" max="0.1" step="0.001">
+            </label>
+            <button class="btn" id="t-btn" type="submit">Entrenar red</button>
+          </form>
+          <div class="progress" aria-hidden="true"><div class="progress-bar" id="t-bar"></div></div>
+          <p class="status-line" id="t-status" role="status">Listo para entrenar.</p>
+          <canvas id="t-chart" width="560" height="240" aria-label="Curvas de pérdida y precisión durante el entrenamiento"></canvas>
+          <div class="legend"><span class="dot loss"></span> Pérdida (error, escalada) <span class="dot acc"></span> Precisión</div>
+        </div>
+
+        <div class="panel">
+          <h2 class="h2">Enséñale algo</h2>
+          <p class="muted">Añade una pregunta nueva a un tema que ya existe, o crea un tema nuevo con su respuesta. Después pulsa <strong>Entrenar red</strong>.</p>
+          <form id="teach-form" class="form-col">
+            <label>Tema
+              <select id="teach-tag"></select>
+            </label>
+            <label id="teach-newtag-wrap" hidden>Nombre del tema nuevo
+              <input type="text" id="teach-newtag" maxlength="30" placeholder="ej: cinturon_kuiper">
+            </label>
+            <label>Pregunta de ejemplo
+              <input type="text" id="teach-pattern" maxlength="200" placeholder="ej: ¿qué es el cinturón de Kuiper?" required>
+            </label>
+            <label id="teach-response-wrap" hidden>Respuesta de Santiel
+              <textarea id="teach-response" rows="4" maxlength="600" placeholder="Escribe la respuesta que debe dar Santiel…"></textarea>
+            </label>
+            <button class="btn" type="submit">Guardar para entrenar</button>
+          </form>
+          <p class="status-line" id="teach-status" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CÓMO FUNCIONA ============ -->
+    <section class="view" id="view-about">
+      <div class="hero compact">
+        <h1>Cómo <em>funciona</em></h1>
+        <p>Una red neuronal explicada sin magia.</p>
+      </div>
+      <div class="panel about">
+        <svg id="net-svg" viewBox="0 0 640 260" role="img" aria-label="Diagrama de la red: capa de entrada, capa oculta y capa de salida"></svg>
+        <ol class="steps">
+          <li><strong>Entrada.</strong> Tu frase se limpia (sin acentos ni signos) y se convierte en un vector: cada palabra, pareja de palabras y trozo de letras conocido es una casilla.</li>
+          <li><strong>Capa oculta.</strong> Cada neurona hace una suma ponderada de esas casillas y la pasa por una función ReLU. Ahí la red descubre patrones.</li>
+          <li><strong>Salida.</strong> Una función softmax convierte el resultado en probabilidades, una por tema. Gana el tema más probable y Santiel responde con él.</li>
+          <li><strong>Aprender.</strong> Al entrenar, la red compara su acierto con la respuesta correcta y ajusta sus pesos con retropropagación y el optimizador Adam.</li>
+        </ol>
+        <p class="note"><strong>Importante:</strong> Santiel no genera texto nuevo como ChatGPT o Claude. Es un clasificador: reconoce <em>de qué tema</em> preguntas y responde con textos que tú guardaste. Cuantas más preguntas de ejemplo le enseñes, mejor entiende.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">Santiel · hecho con NumPy, Flask y mucho cielo.</footer>
+
+  <script src="js/stars.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/train.js"></script>
+  <script src="js/games.js"></script>
+</body>
+</html>
